@@ -8,6 +8,7 @@ var _ = {};
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -38,6 +39,8 @@ var _ = {};
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+ return n === undefined ? array[array.length-1] : array.slice(array[(array.length-n -1)], array[array.length]);
+
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -46,6 +49,26 @@ var _ = {};
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+     if(Object.prototype.toString.call( collection) === '[object Array]')
+     {
+    for(var k in collection)
+    {
+      if(!isNaN(k))
+      iterator(collection[k],k,collection);
+    }
+}
+else
+{
+    for(var k in collection)
+    {
+     
+      iterator(collection[k],k,collection);
+    }
+}
+
+
+
+
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -61,22 +84,55 @@ var _ = {};
         result = index;
       }
     });
-
+result = parseInt(result);
     return result;
   };
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+ var result =[]
+   for(var k in collection)
+    {
+     if(test(collection[k]))
+     result.push(collection[k]);
+    
+    }
+return result;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+
+var result =[]
+   for(var k in collection)
+    {
+     if(!test(collection[k]))
+     result.push(collection[k]);
+    
+    }
+return result;
+
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array) {
+var result = array;
+ 
+  for(var i =0; i < result.length;i++)
+{
+  for(var k =0; k < result.length;k++)
+  {
+    if(result[i] == result[k] && i != k)
+    {
+    result.splice(k,1);
+
+    }
+  }
+}
+
+    return result;
   };
 
 
@@ -85,6 +141,26 @@ var _ = {};
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    var result = [];
+if(Object.prototype.toString.call( collection) === '[object Array]')
+     {
+    for(var k in collection)
+    {
+      if(!isNaN(k))
+      result.push(iterator(collection[k],k,collection));
+    }
+}
+else
+{
+    for(var k in collection)
+    {
+     
+      result.push(iterator(collection[k],k,collection));
+    }
+}
+return result;
+
+
   };
 
   /*
@@ -108,6 +184,25 @@ var _ = {};
   // Calls the method named by methodName on each value in the list.
   // Note: you will nead to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+var temp = [];
+
+
+if(typeof functionOrKey == 'string')
+{
+for(var k in collection)
+{
+     temp.push(collection[k][functionOrKey].apply(collection[k],args));
+}
+}
+else
+{
+for(var k in collection)
+{
+   temp.push(functionOrKey.apply(collection[k],args));
+}
+}
+
+return temp;
   };
 
   // Reduces an array or object to a single value by repetitively calling
@@ -124,6 +219,79 @@ var _ = {};
   //     return total + number;
   //   }, 0); // should be 6
   _.reduce = function(collection, iterator, accumulator) {
+    
+
+      var returnvalue;
+      if(accumulator !=null)
+      {
+    returnvalue = accumulator;
+      var i =0;
+      }
+      else
+      {
+    returnvalue = collection[0];
+      var i=0;
+      }
+
+
+    // while( i < collection.length )
+    // {
+    // returnvalue = iterator(returnvalue, collection[i])
+    // i++;
+    // }
+for(var k in collection)
+    {
+     returnvalue = iterator(returnvalue, collection[k]);
+    }
+
+    return returnvalue;
+
+
+
+
+
+//  if(Object.prototype.toString.call( collection) === '[object Array]')
+//      {
+
+//     var returnvalue;
+//       if(accumulator !=null)
+//       {
+//     returnvalue = accumulator;
+      
+//       }
+//       else
+//       {
+//     returnvalue = collection[0];
+      
+//       }
+//     for(var k in collection)
+//     {
+//       if(!isNaN(k))
+//        returnvalue = iterator(returnvalue, collection[k]);
+//     }
+// }
+// else
+// {
+
+//    var returnvalue;
+//       if(accumulator !=null)
+//       {
+//     returnvalue = collection[accumulator];
+      
+//       }
+//       else
+//       {
+//     returnvalue = collection[0];
+      
+//       }
+
+
+//     for(var k in collection)
+//     {
+//      returnvalue = iterator(returnvalue, collection[k]);
+//     }
+// }
+
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -142,12 +310,65 @@ var _ = {};
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
-  };
+return _.reduce(collection, function(recursedvalue, item) {
+  if(iterator ==null)
+  {
+    return item;
+  }
+  if(recursedvalue)
+  {
+    if(iterator !=null)
+    {
+     if( iterator(item))
+     {
+  return true;
+  }
+  else
+  {
+    return false;
+  }
+  }
 
+
+  }
+
+  return false;
+  }
+    , true);
+}
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    var flag =false;
+_.reduce(collection, function(recursedvalue, item) {
+
+  if(iterator ==null)
+  {
+    iterator = _.identity;
+  }
+   
+ 
+    if(iterator !=null)
+    {
+     if(iterator(item))
+     {
+      flag = true;
+  return true;
+  }
+  else
+  {
+    return false;
+  }
+
+  }
+
+
+  }
+    , true);
+
+
+return flag;
   };
 
 
@@ -170,11 +391,41 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+if(arguments.length > 1)
+{
+for(var i =1;i< arguments.length;i++)
+  {
+
+for (var attrname in arguments[i]) {obj[attrname] = arguments[i][attrname]; }
+
+
+  }
+
+}
+
+return obj;
+    
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+
+    for(var i =1;i< arguments.length;i++)
+  {
+
+for (var attrname in arguments[i]) {
+if(obj[attrname] == null)
+{
+  obj[attrname] = arguments[i][attrname];
+   }
+}
+
+  }
+
+
+
+return obj;
   };
 
 
@@ -216,6 +467,23 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+      var memo = {};
+  var slice = Array.prototype.slice;
+
+  return function() {
+    var args = slice.call(arguments);
+
+    if (args in memo)
+    {
+      return memo[args];
+    }
+    else
+    {
+      return (memo[args] = func.apply(this, args));
+    }
+
+  }
+ 
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -225,6 +493,12 @@ var _ = {};
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var slice = Array.prototype.slice;
+    var args = slice.call(arguments, 2);
+    return setTimeout(function () {
+     return func.apply(null, args);
+      },
+       wait);
   };
 
 
@@ -239,6 +513,23 @@ var _ = {};
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+
+    var arraycopy = array.slice(0, array.length);
+    var tempchain = array.slice(0, array.length);
+var storage;
+
+     var numberleft = arraycopy.length;
+while(numberleft > 0)
+{   
+
+  var random = Math.floor(Math.random() * numberleft);
+    numberleft -= 1;
+ storage = tempchain[numberleft];
+    tempchain[numberleft] = arraycopy[random];
+    arraycopy[random] = storage;
+}
+
+  return tempchain;
   };
 
 
